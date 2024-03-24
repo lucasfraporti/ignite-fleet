@@ -23,5 +23,6 @@ module.exports = {
   rules: {
     'react/react-in-jsx-scope': 'off',
     camelcase: 'off',
+    'react/display-name': 'off',
   },
 }
