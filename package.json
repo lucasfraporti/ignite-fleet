@@ -11,12 +11,21 @@
   "dependencies": {
     "@expo-google-fonts/roboto": "^0.2.3",
     "@react-native-google-signin/google-signin": "^11.0.0",
+    "@react-navigation/native": "^6.1.17",
+    "@react-navigation/native-stack": "^6.9.26",
+    "@realm/react": "^0.6.2",
     "expo": "~50.0.14",
     "expo-font": "~11.10.3",
+    "expo-image": "~1.10.6",
     "expo-status-bar": "~1.11.1",
     "expo-system-ui": "~2.9.3",
+    "phosphor-react-native": "^2.0.0",
     "react": "18.2.0",
     "react-native": "0.73.6",
+    "react-native-safe-area-context": "4.8.2",
+    "react-native-screens": "~3.29.0",
+    "react-native-svg": "14.1.0",
+    "realm": "^12.6.2",
     "styled-components": "^6.1.8"
   },
   "devDependencies": {

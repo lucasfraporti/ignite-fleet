@@ -6,10 +6,17 @@ import {
   Roboto_700Bold,
 } from '@expo-google-fonts/roboto'
 
+import { AppProvider, UserProvider } from '@realm/react'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
+
+import { REALM_APP_ID } from '@env'
+
 import theme from './src/theme'
 
-import { SignIn } from './src/screens/SignIn'
 import { Loading } from './src/components/Loading'
+
+import { SignIn } from './src/screens/SignIn'
+import { Routes } from './src/routes'
 
 export default function App() {
   const [fontsLoaded] = useFonts({ Roboto_400Regular, Roboto_700Bold })
@@ -19,13 +26,20 @@ export default function App() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor="transparent"
-        translucent
-      />
-      <SignIn />
-    </ThemeProvider>
+    <AppProvider id={REALM_APP_ID}>
+      <ThemeProvider theme={theme}>
+        <SafeAreaProvider>
+          <StatusBar
+            barStyle="light-content"
+            backgroundColor="transparent"
+            translucent
+          />
+          {/* Se o usuário não estiver logado, o fallback redireciona para o SignIn e se estiver logado ele será redirecionado para a Home */}
+          <UserProvider fallback={SignIn}>
+            <Routes />
+          </UserProvider>
+        </SafeAreaProvider>
+      </ThemeProvider>
+    </AppProvider>
   )
 }
