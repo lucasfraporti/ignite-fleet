@@ -15,7 +15,9 @@ import { REALM_APP_ID } from '@env'
 
 import theme from './src/theme'
 import { Routes } from './src/routes'
+
 import { RealmProvider } from './src/libs/realm'
+import './src/libs/dayjs'
 
 import { Loading } from './src/components/Loading'
 
