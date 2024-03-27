@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Alert, FlatList } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
+import { useUser } from '@realm/react'
 import dayjs from 'dayjs'
 
 import { Container, Content, Label, Title } from './styles'
@@ -21,6 +22,7 @@ export function Home() {
   const { navigate } = useNavigation()
 
   const historic = useQuery(Historic)
+  const user = useUser()
   const realm = useRealm()
 
   function handleRegisterMovement() {
@@ -91,6 +93,16 @@ export function Home() {
   useEffect(() => {
     fetchHistoric()
   }, [historic])
+
+  useEffect(() => {
+    realm.subscriptions.update((mutableSubs, realm) => {
+      const historicByUserQuery = realm
+        .objects(Historic)
+        .filtered(`user_id = '${user!.id}'`)
+
+      mutableSubs.add(historicByUserQuery, { name: 'historic_by_user' })
+    })
+  }, [realm])
 
   return (
     <Container>

@@ -16,7 +16,7 @@ import { REALM_APP_ID } from '@env'
 import theme from './src/theme'
 import { Routes } from './src/routes'
 
-import { RealmProvider } from './src/libs/realm'
+import { RealmProvider, syncConfig } from './src/libs/realm'
 import './src/libs/dayjs'
 
 import { Loading } from './src/components/Loading'
@@ -43,7 +43,8 @@ export default function App() {
           />
           {/* Se o usuário não estiver logado, o fallback redireciona para o SignIn e se estiver logado ele será redirecionado para a Home */}
           <UserProvider fallback={SignIn}>
-            <RealmProvider>
+            {/* O fallback será ativo enquanto o carregamento do banco estiver ativo... */}
+            <RealmProvider sync={syncConfig} fallback={Loading}>
               <Routes />
             </RealmProvider>
           </UserProvider>

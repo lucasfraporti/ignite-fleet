@@ -7,12 +7,14 @@ import { Container, Title, Slogan } from './styles'
 
 import backgroundImg from '../../assets/background.png'
 
+import { IOS_CLIENT_ID, WEB_CLIENT_ID } from '@env'
+
 import { Button } from '../../components/Button'
 
 GoogleSignin.configure({
   scopes: ['profile', 'email'],
-  webClientId: process.env.WEB_CLIENT_ID,
-  iosClientId: process.env.IOS_CLIENT_ID,
+  webClientId: WEB_CLIENT_ID,
+  iosClientId: IOS_CLIENT_ID,
 })
 
 export function SignIn() {

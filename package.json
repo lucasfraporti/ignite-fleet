@@ -16,6 +16,7 @@
     "@realm/react": "^0.6.2",
     "dayjs": "^1.11.10",
     "expo": "~50.0.14",
+    "expo-dev-client": "^3.3.11",
     "expo-font": "~11.10.3",
     "expo-image": "~1.10.6",
     "expo-status-bar": "~1.11.1",
