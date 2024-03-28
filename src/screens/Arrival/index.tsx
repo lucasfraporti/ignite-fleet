@@ -65,8 +65,8 @@ export function Arrival() {
       }
 
       realm.write(() => {
-        historic.status = 'arrival'
-        historic.updated_at = new Date()
+        historic!.status = 'arrival'
+        historic!.updated_at = new Date()
       })
 
       Alert.alert('Chegada', 'Chegada do veículo registrada com sucesso!')

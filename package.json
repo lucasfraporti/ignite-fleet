@@ -33,7 +33,8 @@
     "react-native-svg": "14.1.0",
     "react-native-toast-message": "^2.2.0",
     "realm": "^12.6.2",
-    "styled-components": "^6.1.8"
+    "styled-components": "^6.1.8",
+    "expo-location": "~16.5.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
