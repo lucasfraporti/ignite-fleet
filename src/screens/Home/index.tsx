@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Alert, FlatList } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
-import { useUser } from '@realm/react'
+import { Realm, useUser } from '@realm/react'
 import dayjs from 'dayjs'
 
 import { Container, Content, Label, Title } from './styles'
@@ -12,6 +12,10 @@ import { HistoricCard, HistoricCardProps } from '../../components/HistoricCard'
 
 import { useQuery, useRealm } from '../../libs/realm'
 import { Historic } from '../../libs/realm/schemas/Historic'
+import {
+  getLastAsyncTimestamp,
+  saveLastSyncTimestamp,
+} from '../../libs/asyncStorage/syncStorage'
 
 export function Home() {
   const [vehicleInUse, setVehicleInUse] = useState<Historic | null>(null)
@@ -46,17 +50,20 @@ export function Home() {
     }
   }
 
-  function fetchHistoric() {
+  async function fetchHistoric() {
     try {
       // Registros do mais recente ao mais antigo
       const response = historic.filtered(
         "status = 'arrival' SORT(created_at DESC)",
       )
+
+      const lastSync = await getLastAsyncTimestamp()
+
       const formattedHistoric = response.map((item) => {
         return {
           id: item._id!.toString(),
           licensePlate: item.license_plate,
-          isSync: false,
+          isSync: lastSync > item.updated_at!.getTime(),
           created_at: dayjs(item.created_at).format(
             '[Saída em] DD/MM/YYYY [às] HH:mm',
           ),
@@ -74,6 +81,18 @@ export function Home() {
 
   function handleHistoricDetails(id: string) {
     navigate('arrival', { id })
+  }
+
+  async function progressNotification(
+    transferred: number,
+    transferable: number,
+  ) {
+    const percentage = (transferred / transferable) * 100
+
+    if (percentage === 100) {
+      await saveLastSyncTimestamp()
+      await fetchHistoric()
+    }
   }
 
   useEffect(() => {
@@ -103,6 +122,22 @@ export function Home() {
       mutableSubs.add(historicByUserQuery, { name: 'historic_by_user' })
     })
   }, [realm])
+
+  useEffect(() => {
+    const syncSession = realm.syncSession
+
+    if (!syncSession) {
+      return
+    }
+
+    syncSession.addProgressNotification(
+      Realm.ProgressDirection.Upload,
+      Realm.ProgressMode.ReportIndefinitely,
+      progressNotification,
+    )
+
+    return () => syncSession.removeProgressNotification(progressNotification)
+  }, [])
 
   return (
     <Container>
