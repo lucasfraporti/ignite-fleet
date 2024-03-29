@@ -21,6 +21,9 @@ module.exports = {
       config: {
         googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
       },
+      infoPlist: {
+        UIBackgroundModes: ['location'],
+      },
     },
     android: {
       adaptiveIcon: {
@@ -28,6 +31,13 @@ module.exports = {
         backgroundColor: '#202024',
       },
       package: 'com.lucasfraporti.ignitefleet',
+      permissions: [
+        // Acesso fino à localização
+        'ACCESS_FINE_LOCATION',
+        // Permissão para utilizar outros meios auxiliares para obter a localização
+        'ACCESS_COARSE_LOCATION',
+        'ACCESS_BACKGROUND_LOCATION',
+      ],
       config: {
         googleMaps: {
           apiKey: process.env.GOOGLE_MAPS_API_KEY,

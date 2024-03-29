@@ -25,10 +25,10 @@ export function Map({ coordinates, ...rest }: Props) {
     if (coordinates.length > 1) {
       mapRef.current?.fitToSuppliedMarkers(['departure', 'arrival'], {
         edgePadding: {
-          top: 50,
-          right: 50,
-          bottom: 50,
-          left: 50,
+          top: 110,
+          right: 110,
+          bottom: 110,
+          left: 110,
         },
       })
     }

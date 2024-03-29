@@ -5,6 +5,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { useUser } from '@realm/react'
 import {
   useForegroundPermissions,
+  requestBackgroundPermissionsAsync,
   watchPositionAsync,
   LocationAccuracy,
   LocationSubscription,
@@ -12,7 +13,16 @@ import {
 } from 'expo-location'
 import { Car } from 'phosphor-react-native'
 
-import { Container, Content, Message } from './styles'
+import { Container, Content, Message, MessageContent } from './styles'
+
+import { licensePlateValidate } from '../../utils/licensePlateValidate'
+import { getAddressLocation } from '../../utils/getAddressLocation'
+import { openSettings } from '../../utils/openSettings'
+
+import { useRealm } from '../../libs/realm'
+import { Historic } from '../../libs/realm/schemas/Historic'
+
+import { startLocationTask } from '../../tasks/backgroundTaskLocation'
 
 import { LicensePlateInput } from '../../components/LicensePlateInput'
 import { Header } from '../../components/Header'
@@ -21,11 +31,6 @@ import { Button } from '../../components/Button'
 import { Loading } from '../../components/Loading'
 import { LocationInfo } from '../../components/LocationInfo'
 import { Map } from '../../components/Map'
-
-import { licensePlateValidate } from '../../utils/licensePlateValidate'
-import { getAddressLocation } from '../../utils/getAddressLocation'
-import { useRealm } from '../../libs/realm'
-import { Historic } from '../../libs/realm/schemas/Historic'
 
 export function Departure() {
   const [description, setDescription] = useState('')
@@ -47,7 +52,7 @@ export function Departure() {
 
   const { goBack } = useNavigation()
 
-  function handleDepartureRegister() {
+  async function handleDepartureRegister() {
     try {
       if (!licensePlateValidate(licensePlate)) {
         licensePlateRef.current?.focus()
@@ -64,7 +69,34 @@ export function Departure() {
           'A descrição é inválida. Por favor, informe a finalidade da utilização do veículo.',
         )
       }
+
+      if (!currentCoords?.latitude && !currentCoords?.longitude) {
+        return Alert.alert(
+          'Localização inválida',
+          'Não foi possível obter a sua localização atual. Tente novamente recarregando o aplicativo.',
+        )
+      }
+
       setIsRegistering(true)
+
+      const backgroundPermissions = await requestBackgroundPermissionsAsync()
+
+      if (!backgroundPermissions.granted) {
+        setIsRegistering(false)
+        return Alert.alert(
+          'Permissão de localização',
+          `É necessário que você aceite as permissões para utilizar o aplicativo.${'\n'}Acesse as configurações do aplicativo e habilite a permissão da localização durante todo o tempo.`,
+          [
+            {
+              text: 'Acessar as configurações',
+              onPress: () => openSettings(),
+            },
+          ],
+        )
+      }
+
+      // Mesmo com o aplicativo fechado, a localização continua sendo atualizada.
+      await startLocationTask()
 
       realm.write(() => {
         realm.create(
@@ -73,6 +105,13 @@ export function Departure() {
             user_id: user!.id,
             license_plate: licensePlate.toUpperCase(),
             description,
+            coords: [
+              {
+                latitude: currentCoords.latitude,
+                longitude: currentCoords.longitude,
+                timestamp: new Date().getTime(),
+              },
+            ],
           }),
         )
       })
@@ -124,18 +163,22 @@ export function Departure() {
         subscription.remove()
       }
     }
-  }, [locationForegroundPermission])
+  }, [locationForegroundPermission?.granted])
 
   if (!locationForegroundPermission?.granted) {
     return (
       <Container>
         <Header title="Saída" />
-        <Message>
-          Você precisa permitir que o aplicativo tenha acesso à localização para
-          utilizar essa funcionalidade.{'\n'}
-          Por favor, acesse as configurações do seu dispositivo para conceder
-          esta permissão.
-        </Message>
+        <MessageContent>
+          <Message>
+            Você precisa permitir que o aplicativo tenha acesso à localização
+            para utilizar essa funcionalidade.{'\n'}
+            Por favor, acesse as configurações do seu dispositivo para conceder
+            esta permissão.
+          </Message>
+
+          <Button title="Abrir configurações" onPress={openSettings} />
+        </MessageContent>
       </Container>
     )
   }
