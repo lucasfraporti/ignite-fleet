@@ -127,16 +127,15 @@ export function Home() {
     fetchHistoric()
   }, [historic])
 
-  // Comentado pois está causando o erro [Error: Access to invalidated Results objects] e eu não sei como resolver até o momento
-  // useEffect(() => {
-  //   realm.subscriptions.update((mutableSubs, realm) => {
-  //     const historicByUserQuery = realm
-  //       .objects('Historic')
-  //       .filtered(`user_id = '${user!.id}'`)
+  useEffect(() => {
+    realm.subscriptions.update((mutableSubs, realm) => {
+      const historicByUserQuery = realm
+        .objects('Historic')
+        .filtered(`user_id = '${user!.id}'`)
 
-  //     mutableSubs.add(historicByUserQuery, { name: 'historic_by_user' })
-  //   })
-  // }, [realm])
+      mutableSubs.add(historicByUserQuery, { name: 'historic_by_user' })
+    })
+  }, [realm])
 
   useEffect(() => {
     const syncSession = realm.syncSession
